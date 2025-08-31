@@ -1,8 +1,8 @@
-const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/auth`; // change this to your backend URL
+//const BASE_URL = `/auth`; // change this to your backend URL
 
 export const requestOtp = async (email: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/request-otp`, {
+    const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/request-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -22,7 +22,7 @@ export const requestOtp = async (email: string) => {
 
 export const signUp = async (email: string, name: string, dateOfBirth: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/request-otp`, {
+    const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/request-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, name, dateOfBirth }),
@@ -42,7 +42,7 @@ export const signUp = async (email: string, name: string, dateOfBirth: string) =
 
 export const verifyOtp = async (email: string, code: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/verify-otp`, {
+    const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, code }),
