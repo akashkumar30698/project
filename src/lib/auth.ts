@@ -1,4 +1,4 @@
-const BASE_URL = `http://localhost:4000/auth`; // change this to your backend URL
+const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/auth`; // change this to your backend URL
 
 export const requestOtp = async (email: string) => {
   try {
