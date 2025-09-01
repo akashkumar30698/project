@@ -1,188 +1,205 @@
-# HD Notes - Full-Stack Note-Taking Application
+# HD Notes - MERN Note-Taking Application
 
-A modern, full-stack note-taking application with authentication and real-time synchronization.
+A modern, full-stack **MERN** note-taking application with authentication, OTP login, and real-time synchronization.  
 
-## Features
+---
 
-- **Authentication**: Email/OTP and Google sign-in
-- **Note Management**: Create, view, and delete notes
-- **Real-time Sync**: Notes sync across devices
-- **Responsive Design**: Works on mobile, tablet, and desktop
-- **Secure**: JWT-based authorization with Supabase
+## ✨ Features  
 
-## Tech Stack
+- **Authentication**: Email/OTP and Google sign-in  
+- **Note Management**: Create, view, update, and delete notes  
+- **Real-time Sync**: Notes sync instantly across devices (Socket.IO)  
+- **Responsive Design**: Works on mobile, tablet, and desktop  
+- **Secure**: JWT-based authentication with role-based access  
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **Authentication**: Supabase Auth with OTP and OAuth
-- **Icons**: Lucide React
-- **Build Tool**: Vite
+---
 
-## Getting Started
+## 🛠 Tech Stack  
 
-### Prerequisites
+- **Frontend**: React 18, TypeScript, Tailwind CSS, Vite  
+- **Backend**: Node.js, Express.js, TypeScript  
+- **Database**: MongoDB with Mongoose  
+- **Authentication**: JWT + OTP (Email) + Google OAuth  
+- **Real-time**: Socket.IO (WebSockets)  
+- **Icons**: Lucide React  
 
-- Node.js 18+ and npm
-- Supabase account
+---
 
-### Installation
+## 🚀 Getting Started  
 
-1. Clone the repository
-2. Install dependencies:
+### Prerequisites  
+
+- Node.js 18+  
+- npm or yarn  
+- MongoDB Atlas (or local MongoDB)  
+- Google OAuth credentials (optional, for Google login)  
+
+---
+
+### 🔧 Installation  
+
+1. Clone the repository:  
    ```bash
-   npm install
+   git clone https://github.com/your-username/hd-notes.git
+   cd hd-notes
    ```
 
-3. Set up Supabase:
-   - Create a new Supabase project at https://supabase.com
-   - Copy your project URL and anon key
-   - Create a `.env.local` file with your Supabase credentials:
-     ```
-     VITE_SUPABASE_URL=your_supabase_project_url
-     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-     ```
-
-4. Set up the database schema (run these SQL commands in your Supabase SQL editor):
-   ```sql
-   -- Create profiles table
-   CREATE TABLE profiles (
-     id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-     name TEXT NOT NULL,
-     email TEXT NOT NULL,
-     date_of_birth DATE,
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
-
-   -- Create notes table
-   CREATE TABLE notes (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     user_id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-     title TEXT NOT NULL,
-     content TEXT NOT NULL,
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
-
-   -- Enable Row Level Security
-   ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
-
-   -- Create policies
-   CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-   CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-   CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-
-   CREATE POLICY "Users can view own notes" ON notes FOR SELECT USING (auth.uid() = user_id);
-   CREATE POLICY "Users can create notes" ON notes FOR INSERT WITH CHECK (auth.uid() = user_id);
-   CREATE POLICY "Users can update own notes" ON notes FOR UPDATE USING (auth.uid() = user_id);
-   CREATE POLICY "Users can delete own notes" ON notes FOR DELETE USING (auth.uid() = user_id);
-
-   -- Create function to handle user profile creation
-   CREATE OR REPLACE FUNCTION handle_new_user() 
-   RETURNS TRIGGER AS $$
-   BEGIN
-     INSERT INTO public.profiles (id, name, email, date_of_birth)
-     VALUES (
-       NEW.id,
-       COALESCE(NEW.raw_user_meta_data->>'name', ''),
-       NEW.email,
-       CASE 
-         WHEN NEW.raw_user_meta_data->>'date_of_birth' IS NOT NULL 
-         THEN (NEW.raw_user_meta_data->>'date_of_birth')::DATE 
-         ELSE NULL 
-       END
-     );
-     RETURN NEW;
-   END;
-   $$ LANGUAGE plpgsql SECURITY DEFINER;
-
-   -- Create trigger for new user
-   CREATE TRIGGER on_auth_user_created
-     AFTER INSERT ON auth.users
-     FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+2. Install dependencies:  
+   ```bash
+   cd frontend && npm install
+   cd ../backend && npm install
    ```
 
-5. Configure Google OAuth (optional):
-   - Go to Supabase Dashboard > Authentication > Providers
-   - Enable Google provider
-   - Add your Google OAuth credentials
+3. Create environment files:  
 
-### Development
+   **Backend (`backend/.env`)**  
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret
+   CLIENT_URL=http://localhost:5173
+   EMAIL_HOST=smtp.yourmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=your_email
+   EMAIL_PASS=your_email_password
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   ```
 
-Start the development server:
+   **Frontend (`frontend/.env.local`)**  
+   ```env
+   VITE_API_URL=http://localhost:5000
+   ```
 
+---
+
+### 🗄 Database Schema (Mongoose)  
+
+**User Model**  
+```ts
+{
+  name: String,
+  email: String,
+  password: String,
+  role: { type: String, default: "USER" },
+  dateOfBirth: Date,
+  profileImageURL: String,
+  tokenVersion: { type: Number, default: 0 }
+}
+```
+
+**Note Model**  
+```ts
+{
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  title: String,
+  content: String,
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+}
+```
+
+---
+
+### ▶ Development  
+
+#### Backend  
 ```bash
+cd backend
 npm run dev
 ```
 
-The application will be available at http://localhost:5173
+Backend will run at: [http://localhost:5000](http://localhost:5000)  
 
-### Build for Production
+#### Frontend  
+```bash
+cd frontend
+npm run dev
+```
 
+Frontend will run at: [http://localhost:5173](http://localhost:5173)  
+
+---
+
+### 📦 Build for Production  
+
+**Frontend**  
 ```bash
 npm run build
 ```
+Output will be in the `dist` folder.  
 
-The built files will be in the `dist` directory.
+**Backend**  
+Deploy with Node.js hosting (Render, Railway, or VPS).  
 
-## Project Structure
+---
+
+## 📂 Project Structure  
 
 ```
-src/
-├── components/          # React components
-│   ├── AuthLayout.tsx   # Authentication layout
-│   ├── SignUpForm.tsx   # User registration form
-│   ├── SignInForm.tsx   # User login form
-│   ├── OtpVerification.tsx # OTP verification
-│   └── Dashboard.tsx    # Main dashboard with notes
-├── contexts/            # React contexts
-│   └── AuthContext.tsx  # Authentication context
-├── lib/                 # Utilities and configurations
-│   └── supabase.ts     # Supabase client setup
-├── App.tsx             # Main application component
-├── main.tsx            # Application entry point
-└── index.css           # Global styles
+frontend/
+├── src/
+│   ├── components/          # React components
+│   ├── contexts/            # React contexts (Auth, Notes)
+│   ├── lib/                 # Utilities & API configs
+│   ├── App.tsx              # Main app
+│   ├── main.tsx             # Entry point
+│   └── index.css            # Global styles
+
+backend/
+├── src/
+│   ├── config/              # DB connection, env setup
+│   ├── models/              # Mongoose schemas
+│   ├── routes/              # Express routes (auth, notes)
+│   ├── middlewares/         # JWT, rate-limit, error handling
+│   ├── controllers/         # Route logic
+│   ├── utils/               # OTP, email, JWT helpers
+│   └── server.ts            # Express app entry
 ```
 
-## Features
+---
 
-### Authentication
-- Email and password registration with OTP verification
-- Google OAuth sign-in
-- Secure JWT tokens
-- Profile management
+## 🔐 Features  
 
-### Notes
-- Create notes with title and content
-- View all personal notes
-- Delete notes
-- Real-time synchronization
-- Responsive grid layout
+### Authentication  
+- Email/OTP login  
+- Google OAuth login  
+- JWT access + refresh tokens  
+- Keep-me-logged-in option  
 
-### Security
-- Row Level Security (RLS) policies
-- JWT token authorization
-- User data isolation
-- Secure API endpoints
+### Notes  
+- Create, view, update, and delete notes  
+- Real-time sync across devices (Socket.IO)  
+- Responsive grid layout  
 
-## Deployment
+### Security  
+- JWT authentication  
+- Password hashing (bcrypt)  
+- Role-based access control  
+- Rate limiting  
 
-This application can be deployed to any static hosting service like:
-- Vercel
-- Netlify
-- Cloudflare Pages
-- GitHub Pages
+---
 
-Make sure to add your environment variables to your hosting platform.
+## 🚀 Deployment  
 
-## Contributing
+- **Frontend**: Vercel, Netlify, Cloudflare Pages  
+- **Backend**: Render, Railway, Vercel (Serverless), or VPS  
+- **Database**: MongoDB Atlas  
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+Make sure to add all environment variables in your hosting platform.  
 
-## License
+---
 
-This project is open source and available under the MIT License.
+## 🤝 Contributing  
+
+1. Fork the repository  
+2. Create a new feature branch  
+3. Make your changes  
+4. Test thoroughly  
+5. Submit a PR  
+
+---
+
+## 📜 License  
+
+This project is open source under the [MIT License](LICENSE).  
