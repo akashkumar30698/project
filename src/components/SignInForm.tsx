@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { requestOtp, verifyOtp } from '../lib/auth';
-import {  Mail } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from "js-cookie"
 import { Eye, EyeOff, Key } from "lucide-react"; // Eye icons + OTP ke liye Key icon
@@ -27,12 +27,12 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
   const navigate = useNavigate()
 
 
-   useEffect(()=>{
-     console.log("otpSent: ",otpSent,setOtpSent)
-   },[otpSent])
+  useEffect(() => {
+    console.log("otpSent: ", otpSent, setOtpSent)
+  }, [otpSent])
 
   // Validate email
- 
+
 
 
   /*
@@ -66,28 +66,28 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
   };
   
   */
- 
+
 
   const handleVerifyOtp = async () => {
     if (!otp.trim()) {
       setError('OTP is required');
       return;
     }
-
+     console.log("exe")
     setLoading(true);
     setError('');
 
-    const res = await verifyOtp(email, otp);
-    const result = await res.json()
-    console.log("result: ",result)
+      const res = await verifyOtp(email, otp);
+     const result = await res.json()
+     console.log("result: ",result)
 
-    if (result) {
-      alert('Logged in successfully! ✅');
-      Cookies.set("accessToken",result?.accessToken)
-      navigate("/dashboard")
-    } else {
+     if (result) {
+        alert('Logged in successfully! ✅');
+       Cookies.set("accessToken",result?.accessToken)
+     navigate("/dashboard")
+      } else {
       setError(result); // now shows the real backend error
-    }
+      }
 
     setLoading(false);
   };
@@ -113,7 +113,7 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
   return (
     <div className="w-full max-w-md">
       <div className="flex items-center mb-8">
-       {/* Image */}
+        {/* Image */}
         <div className="mr-2">
           <img
             src="/icon.png"
@@ -121,7 +121,7 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
             className="h-8 w-8 object-contain"
           />
         </div>
-        {/* Text */}        
+        {/* Text */}
         <span className="text-xl font-semibold text-gray-800">HD</span>
       </div>
 
@@ -136,7 +136,10 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
         </div>
       )}
 
-      <form onSubmit={handleVerifyOtp} className="space-y-6">
+      <form onSubmit={(e) => {
+        e.preventDefault(); // ❌ stop page refresh
+        handleVerifyOtp()
+      }} className="space-y-6">
 
         {/* Email */}
         <div className="relative">
@@ -184,9 +187,9 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
               ? "Sending..."
               : otpRequested
                 ? "Resend OTP"
-                : "Get OTP"}         
-                
-           </button>
+                : "Get OTP"}
+
+          </button>
 
           {/* Keep me logged in */}
           <label className="flex items-center space-x-2 text-gray-600">

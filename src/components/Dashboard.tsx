@@ -1,6 +1,7 @@
 
 
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, Plus, Trash2, User, Calendar, Mail, LogOut, Edit3 } from 'lucide-react'
 
 
@@ -17,6 +18,8 @@ export function Dashboard() {
   const [creating, setCreating] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '' });
   const [error, setError] = useState('');
+
+  const navigate = useNavigate()
   const [userInfo, setUserInfo] = useState({ name: 'Not provided', email: 'Not provided' });
 
  
@@ -32,7 +35,7 @@ export function Dashboard() {
 
   const fetchUserInfo = async () => {
     try {
-      const res = await fetch('https://backend-note-ltfp.onrender.com/auth/user', { credentials: 'include' });
+      const res = await fetch('http://localhost:4000/auth/user', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch user info');
       const data = await res.json();
       setUserInfo({ name: data.name, email: data.email });
@@ -43,7 +46,7 @@ export function Dashboard() {
 
   const fetchNotes = async () => {
     try {
-      const res = await fetch('https://backend-note-ltfp.onrender.com/notes', { credentials: 'include' });
+      const res = await fetch('http://localhost:4000/notes', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch notes');
       const data = await res.json();
       setNotes(data.notes);
@@ -63,7 +66,7 @@ export function Dashboard() {
     setError('');
 
     try {
-      const res = await fetch('https://backend-note-ltfp.onrender.com/notes', {
+      const res = await fetch('http://localhost:4000/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -84,7 +87,7 @@ export function Dashboard() {
 
   const deleteNote = async (id: string) => {
     try {
-      const res = await fetch(`https://backend-note-ltfp.onrender.com/notes/${id}`, {
+      const res = await fetch(`http://localhost:4000/notes/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -95,6 +98,19 @@ export function Dashboard() {
       console.error(err);
     }
   };
+
+  const handleLogout =async ( ) =>{
+     try {
+      const res = await fetch(`http://localhost:4000/auth/logout`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Failed to logout');
+      navigate("/")
+    } catch (err) {
+      setError('Failed to delete note');
+      console.error(err);
+    }
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -115,6 +131,7 @@ export function Dashboard() {
               <span className="text-xl font-semibold text-gray-800">HD Notes</span>
             </div>
             <button
+            onClick={handleLogout}
               className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200"
             >
               <LogOut className="h-4 w-4 mr-1" />

@@ -2,7 +2,7 @@
 
 export const requestOtp = async (email: string) => {
   try {
-    const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/request-otp`, {
+    const res = await fetch(`http://localhost:4000/auth/request-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -22,7 +22,7 @@ export const requestOtp = async (email: string) => {
 
 export const signUp = async (email: string, name: string, dateOfBirth: string) => {
   try {
-    const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/request-otp`, {
+    const res = await fetch(`http://localhost:4000/auth/request-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, name, dateOfBirth }),
@@ -42,7 +42,7 @@ export const signUp = async (email: string, name: string, dateOfBirth: string) =
 
 export const verifyOtp = async (email: string, code: string) => {
   try {
-    const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/verify-otp`, {
+    const res = await fetch(`http://localhost:4000/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, code }),

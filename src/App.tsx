@@ -1,7 +1,6 @@
 import  { useEffect, useState } from "react";
 import { AuthLayout } from "./components/AuthLayout";
 import { Dashboard } from "./components/Dashboard";
-import Cookies from "js-cookie";
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null while loading
@@ -10,7 +9,7 @@ function AppContent() {
     // Call backend to check cookie
     const checkLogin = async () => {
       try {
-        const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/check`, {
+        const res = await fetch(`http://localhost:4000/auth/check`, {
           credentials: "include", // important to send cookies
         });
         const data = await res.json();
@@ -21,13 +20,8 @@ function AppContent() {
       }
     };
 
-    if(Cookies.get("accessToken")){
-      setIsLoggedIn(true)
-    }else{
-      setIsLoggedIn(false)
-    }
-
-//    checkLogin();
+   
+    checkLogin();
   }, []);
 
   // Show nothing while loading
