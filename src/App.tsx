@@ -9,7 +9,7 @@ function AppContent() {
     // Call backend to check cookie
     const checkLogin = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/auth/check`, {
+        const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/check`, {
           credentials: "include", // important to send cookies
         });
         const data = await res.json();

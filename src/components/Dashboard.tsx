@@ -35,7 +35,7 @@ export function Dashboard() {
 
   const fetchUserInfo = async () => {
     try {
-      const res = await fetch('http://localhost:4000/auth/user', { credentials: 'include' });
+      const res = await fetch('https://backend-note-ltfp.onrender.com/auth/user', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch user info');
       const data = await res.json();
       setUserInfo({ name: data.name, email: data.email });
@@ -46,7 +46,7 @@ export function Dashboard() {
 
   const fetchNotes = async () => {
     try {
-      const res = await fetch('http://localhost:4000/notes', { credentials: 'include' });
+      const res = await fetch('https://backend-note-ltfp.onrender.com/notes', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch notes');
       const data = await res.json();
       setNotes(data.notes);
@@ -66,7 +66,7 @@ export function Dashboard() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:4000/notes', {
+      const res = await fetch('https://backend-note-ltfp.onrender.com/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -87,7 +87,7 @@ export function Dashboard() {
 
   const deleteNote = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/notes/${id}`, {
+      const res = await fetch(`https://backend-note-ltfp.onrender.com/notes/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -101,7 +101,7 @@ export function Dashboard() {
 
   const handleLogout =async ( ) =>{
      try {
-      const res = await fetch(`http://localhost:4000/auth/logout`, {
+      const res = await fetch(`https://backend-note-ltfp.onrender.com/auth/logout`, {
         method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to logout');
