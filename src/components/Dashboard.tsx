@@ -3,60 +3,106 @@
 import React, { useEffect, useState } from 'react'
 import { Sparkles, Plus, Trash2, User, Calendar, Mail, LogOut, Edit3 } from 'lucide-react'
 
+
+interface Note {
+  _id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
+
 export function Dashboard() {
-  const [notes, setNotes] = useState([])
-  const [creating, setCreating] = useState(false)
-  const [newNote, setNewNote] = useState({ title: '', content: '' })
-  const [error, setError] = useState('')
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [newNote, setNewNote] = useState({ title: '', content: '' });
+  const [error, setError] = useState('');
+  const [userInfo, setUserInfo] = useState({ name: 'Not provided', email: 'Not provided' });
 
  
   useEffect(()=>{
     console.log("setNotes: ",setNotes)
   },[setNotes])
 
+  // Fetch notes on mount
+  useEffect(() => {
+    fetchNotes();
+    fetchUserInfo();
+  }, []);
+
+  const fetchUserInfo = async () => {
+    try {
+      const res = await fetch('https://backend-note-ltfp.onrender.com/auth/user', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch user info');
+      const data = await res.json();
+      setUserInfo({ name: data.name, email: data.email });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchNotes = async () => {
+    try {
+      const res = await fetch('https://backend-note-ltfp.onrender.com/notes', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch notes');
+      const data = await res.json();
+      setNotes(data.notes);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const createNote = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!newNote.title.trim() || !newNote.content.trim()) {
-      setError('Both title and content are required')
-      return
+      setError('Both title and content are required');
+      return;
     }
 
-    setCreating(true)
-    setError('')
+    setCreating(true);
+    setError('');
 
     try {
-    
+      const res = await fetch('https://backend-note-ltfp.onrender.com/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newNote),
+      });
 
- 
+      if (!res.ok) throw new Error('Failed to create note');
+      const createdNote = await res.json();
+      setNotes([createdNote, ...notes]);
+      setNewNote({ title: '', content: '' });
     } catch (err) {
-      setError('Failed to create note')
+      setError('Failed to create note');
+      console.error(err);
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
-
-  /*
-   const deleteNote = async (id: string) => {
+  const deleteNote = async (id: string) => {
     try {
-   
+      const res = await fetch(`https://backend-note-ltfp.onrender.com/notes/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to delete note');
+      setNotes(notes.filter((note) => note._id !== id));
     } catch (err) {
-      setError('Failed to delete note')
+      setError('Failed to delete note');
+      console.error(err);
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    })
-  }
-  
-  
-  
-  */
-
+    });
+  };
  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -82,13 +128,13 @@ export function Dashboard() {
         {/* Welcome Section */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome back, !
+            Welcome back, ! {userInfo?.name}
           </h1>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
             <div className="flex items-center">
               <User className="h-4 w-4 mr-2 text-blue-600" />
-              <span>{  'Not provided'}</span>
+              <span>{userInfo?.email || 'Not provided'}</span>
             </div>
             <div className="flex items-center">
               <Mail className="h-4 w-4 mr-2 text-blue-600" />
@@ -96,7 +142,7 @@ export function Dashboard() {
             </div>
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-2 text-blue-600" />
-              <span>{'Not provided'}</span>
+              <span>{formatDate(new Date().toISOString())}</span>
             </div>
           </div>
         </div>
@@ -155,26 +201,19 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {notes.map((note) => (
-                <div
-                  key={note}
-                  className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-200"
-                >
+                {notes.map((note) => (
+                <div key={note._id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900 truncate">
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">{note.title}</h3>
                     <button
                       className="text-gray-400 hover:text-red-600 transition-colors duration-200"
+                      onClick={() => deleteNote(note._id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                  
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                  </p>
-                  
-                  <p className="text-xs text-gray-400">
-                  </p>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{note.content}</p>
+                  <p className="text-xs text-gray-400">{formatDate(note.createdAt)}</p>
                 </div>
               ))}
             </div>
