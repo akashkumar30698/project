@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { requestOtp, verifyOtp } from '../lib/auth';
 import {  Mail } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie"
 import { Eye, EyeOff, Key } from "lucide-react"; // Eye icons + OTP ke liye Key icon
 
 
@@ -76,10 +77,13 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
     setLoading(true);
     setError('');
 
-    const result = await verifyOtp(email, otp);
+    const res = await verifyOtp(email, otp);
+    const result = await res.json()
+    console.log("result: ",result)
 
-    if (result == true) {
+    if (result) {
       alert('Logged in successfully! ✅');
+      Cookies.set("accessToken",result?.accessToken)
       navigate("/dashboard")
     } else {
       setError(result); // now shows the real backend error

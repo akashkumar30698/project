@@ -1,6 +1,7 @@
 import  { useEffect, useState } from "react";
 import { AuthLayout } from "./components/AuthLayout";
 import { Dashboard } from "./components/Dashboard";
+import Cookies from "js-cookie";
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null while loading
@@ -20,7 +21,13 @@ function AppContent() {
       }
     };
 
-    checkLogin();
+    if(Cookies.get("accessToken")){
+      setIsLoggedIn(true)
+    }else{
+      setIsLoggedIn(false)
+    }
+
+//    checkLogin();
   }, []);
 
   // Show nothing while loading

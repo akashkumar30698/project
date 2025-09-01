@@ -54,7 +54,7 @@ export const verifyOtp = async (email: string, code: string) => {
       throw new Error(errData.message || 'OTP verification failed');
     }
 
-    return true;
+    return res;
   } catch (error: any) {
     return error.message || 'Something went wrong while verifying OTP';
   }
